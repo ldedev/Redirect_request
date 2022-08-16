@@ -63,8 +63,12 @@ fn (mut ws Ws) redirect_me_access(cnpj_cpf string) vweb.Result {
 			id: id
 			cnpj_cpf: cnpj_cpf
 			url: match true {
-				url_param == ':' { '' }
-				url_param == '/:' { '/' }
+				url_param.start_withs(':') {
+					url_param[1..] or { '' }
+				}
+				url_param.start_withs('/:') == '/:' {
+					'/${url_param[2..]}' or { '/' }
+				}
 				else { url_param }
 			}
 			body: ws.req.data

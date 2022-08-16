@@ -73,6 +73,12 @@ fn main() {
 			continue
 		}
 
+		if js_context_req.status.code != '404' {
+			dump(js_context_req)
+			println("\n")
+
+		}
+
 		if js_context_req.status.code == '200' {
 			mut resp_endpoint := http.Response{}
 
