@@ -82,7 +82,7 @@ fn (mut ws Ws) redirect_me_access(cnpj_cpf string) vweb.Result {
 			waitingtime: time.now().add(10 * time.minute)
 		}
 
-		println(ws.req.data)
+		// println(ws.req.data)
 	}
 	for {
 		if id !in data_stack.stack[cnpj_cpf] {
@@ -170,6 +170,7 @@ fn (mut ws Ws) get_context_request(cnpj_cpf string) vweb.Result {
 		})
 	}
 
+	dump(data_stack.stack[cnpj_cpf][id])
 	return ws.json(data_stack.stack[cnpj_cpf][id])
 }
 
