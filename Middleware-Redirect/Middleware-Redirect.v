@@ -5,6 +5,8 @@ import json
 import domain.models
 
 fn main() {
+	println("Middleware started!")
+
 	access_ini := ini.read_ini('./access.ini') or { panic('access.ini not found') }
 
 	cnpj_cpf := match true {
