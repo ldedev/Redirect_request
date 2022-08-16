@@ -82,8 +82,6 @@ fn (mut ws Ws) redirect_me_access(cnpj_cpf string) vweb.Result {
 			concluded: false
 			waitingtime: time.now().add(10 * time.minute)
 		}
-
-		// println(ws.req.data)
 	}
 	for {
 		if id !in data_stack.stack[cnpj_cpf] {

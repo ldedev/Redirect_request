@@ -74,7 +74,7 @@ fn main() {
 		}
 
 		if js_context_req.status.code != '404' {
-			dump(js_context_req)
+			dump(resp.body)
 			println("\n")
 
 		}
