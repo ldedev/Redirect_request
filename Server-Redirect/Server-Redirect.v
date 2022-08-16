@@ -45,7 +45,7 @@ fn main() {
 
 ['/:cnpj'; get; post]
 fn (mut ws Ws) redirect_me_access(cnpj_cpf string) vweb.Result {
-	url_param := urllib.query_unescape(ws.req.url.after('?')) or { ws.req.url.after('?') }
+	mut url_param := urllib.query_unescape(ws.req.url.after('?')) or { ws.req.url.after('?') }
 
 	if cnpj_cpf.len == 14 || cnpj_cpf.len == 11 {
 	} else if !cnpj_cpf.split('').all(it[0].is_digit()) {
@@ -59,10 +59,7 @@ fn (mut ws Ws) redirect_me_access(cnpj_cpf string) vweb.Result {
 
 	id := rand.uuid_v4()
 	unsafe {
-		data_stack.stack[cnpj_cpf][id] = DataRequest{
-			id: id
-			cnpj_cpf: cnpj_cpf
-			url: match true {
+		url_param = match true {
 				url_param.starts_with(':') {
 					url_param[1..] or { '' }
 				}
@@ -74,6 +71,11 @@ fn (mut ws Ws) redirect_me_access(cnpj_cpf string) vweb.Result {
 					url_param
 				}
 			}
+		
+		data_stack.stack[cnpj_cpf][id] = DataRequest{
+			id: id
+			cnpj_cpf: cnpj_cpf
+			url: if url_param.starts_with('//') { url_param[1..] } else { url_param }
 			body: ws.req.data
 			method: ws.req.method.str()
 			concluded: false
