@@ -95,6 +95,13 @@ fn main() {
 				}
 			}
 
+			if js_context_req.status.code != '404' {
+				println("\n <<<< RESP >>>>\n")
+				dump(resp_endpoint)
+				println("\n")
+
+			}
+
 			http.post('http://$serv_redirect_ip:$serv_redirect_port/put_data/$cnpj_cpf/$js_context_req.id',
 				resp_endpoint.body) or { http.Response{} }
 		}
