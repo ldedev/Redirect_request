@@ -5,6 +5,7 @@ import json
 import domain.models
 
 fn main() {
+	mut i := 0
 	println("Middleware started!")
 
 	access_ini := ini.read_ini('./access.ini') or { panic('access.ini not found') }
@@ -64,6 +65,9 @@ fn main() {
 	}
 
 	for {
+		if i == 2 {
+			panic("ok!")
+		}
 		resp := http.get('http://$serv_redirect_ip:$serv_redirect_port/get_context_request/$cnpj_cpf') or {
 			http.Response{}
 		}
@@ -76,10 +80,10 @@ fn main() {
 		if js_context_req.status.code != '404' {
 			dump(resp.body)
 			println("\n")
-
 		}
 
 		if js_context_req.status.code == '200' {
+			i++
 			mut resp_endpoint := http.Response{}
 
 			if js_context_req.method == 'GET' {
