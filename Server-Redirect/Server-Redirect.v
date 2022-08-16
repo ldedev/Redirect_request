@@ -60,18 +60,18 @@ fn (mut ws Ws) redirect_me_access(cnpj_cpf string) vweb.Result {
 	id := rand.uuid_v4()
 	unsafe {
 		url_param = match true {
-				url_param.starts_with(':') {
-					url_param[1..] or { '' }
-				}
-				url_param.starts_with('/:') {
-					value := url_param[2..] or { '/' }
-					'$value'
-				}
-				else {
-					url_param
-				}
+			url_param.starts_with(':') {
+				url_param[1..] or { '' }
 			}
-		
+			url_param.starts_with('/:') {
+				value := url_param[2..] or { '/' }
+				'$value'
+			}
+			else {
+				url_param
+			}
+		}
+
 		data_stack.stack[cnpj_cpf][id] = DataRequest{
 			id: id
 			cnpj_cpf: cnpj_cpf
@@ -81,6 +81,8 @@ fn (mut ws Ws) redirect_me_access(cnpj_cpf string) vweb.Result {
 			concluded: false
 			waitingtime: time.now().add(10 * time.minute)
 		}
+
+		println(ws.req.data)
 	}
 	for {
 		if id !in data_stack.stack[cnpj_cpf] {
