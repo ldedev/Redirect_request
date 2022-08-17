@@ -3,16 +3,15 @@ module main
 import vweb
 import time
 import rand
-import json
 import net.urllib
 
 struct DataRequest {
-	url      string
-	body     string
-	method   string = 'GET'
-	id       string
-	cnpj_cpf string
 pub mut:
+	url         string
+	body        string
+	method      string = 'GET'
+	id          string
+	cnpj_cpf    string
 	concluded   bool
 	waitingtime time.Time
 	response    DataResponse
@@ -169,13 +168,13 @@ fn (mut ws Ws) get_context_request(cnpj_cpf string) vweb.Result {
 		})
 	}
 
-	// dump(data_stack.stack[cnpj_cpf][id])
+	// str_js := json.encode(data_stack.stack[cnpj_cpf][id].body)
 
-	str_js := json.encode(data_stack.stack[cnpj_cpf][id])
-
-	dump(str_js)
-
-	return ws.text(str_js)
+	dump({
+		'url':  data_stack.stack[cnpj_cpf][id].url
+		'body': data_stack.stack[cnpj_cpf][id].body
+	})
+	return ws.json(data_stack.stack[cnpj_cpf][id])
 }
 
 ['/put_data/:cnpj_cpf/:id'; post]
