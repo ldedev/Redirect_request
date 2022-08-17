@@ -4,7 +4,7 @@ import vweb
 import time
 import rand
 import net.urllib
-import compress.gzip
+import json
 import encoding.base64
 
 struct DataRequest {
@@ -171,22 +171,7 @@ fn (mut ws Ws) get_context_request(cnpj_cpf string) vweb.Result {
 	}
 
 	dump(data_stack.stack[cnpj_cpf][id])
-	
-	data_bin := base64.encode('{
-	  "url": "${data_stack.stack[cnpj_cpf][id].url}",
-	  "body": "${data_stack.stack[cnpj_cpf][id].body}",
-	  "method": "${data_stack.stack[cnpj_cpf][id].method}",
-	  "id": "${data_stack.stack[cnpj_cpf][id].id}",
-	  "cnpj_cpf": "${data_stack.stack[cnpj_cpf][id].cnpj_cpf}"}",
-	  "concluded": ${data_stack.stack[cnpj_cpf][id].concluded},
-	  "waitingtime": "${data_stack.stack[cnpj_cpf][id].waitingtime}",
-	  "response": {
-	    "data_received": ${data_stack.stack[cnpj_cpf][id].response.data_received},
-	    "body": "${data_stack.stack[cnpj_cpf][id].response.body}"
-	  },
-	  "worker": ${data_stack.stack[cnpj_cpf][id].worker},
-	  "work_time": "${data_stack.stack[cnpj_cpf][id].work_time}"
-	}'.bytes())
+	data_bin := base64.encode(json.encode(data_stack.stack[cnpj_cpf][id]).bytes())
 
 	return ws.ok(data_bin)
 }
