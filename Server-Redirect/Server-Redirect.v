@@ -172,7 +172,7 @@ fn (mut ws Ws) get_context_request(cnpj_cpf string) vweb.Result {
 
 	dump(data_stack.stack[cnpj_cpf][id])
 	
-	data_bin := gzip.compress('{
+	data_bin := base64.encode('{
 	  "url": "${data_stack.stack[cnpj_cpf][id].url}",
 	  "body": "${data_stack.stack[cnpj_cpf][id].body}",
 	  "method": "${data_stack.stack[cnpj_cpf][id].method}",
@@ -186,16 +186,9 @@ fn (mut ws Ws) get_context_request(cnpj_cpf string) vweb.Result {
 	  },
 	  "worker": ${data_stack.stack[cnpj_cpf][id].worker},
 	  "work_time": "${data_stack.stack[cnpj_cpf][id].work_time}"
-	}'.bytes()) or {
-		return ws.json({
-			'status': {
-				'msg':  'empty stack'
-				'code': '404'
-			}
-		})
-	}
+	}'.bytes())
 
-	return ws.ok(base64.encode(data_bin))
+	return ws.ok(data_bin)
 }
 
 ['/put_data/:cnpj_cpf/:id'; post]

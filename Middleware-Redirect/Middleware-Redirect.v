@@ -3,6 +3,8 @@ import net.http
 import ldedev.ini
 import json
 import domain.models
+import compress.gzip
+import encoding.base64
 
 fn main() {
 	mut i := 0
@@ -72,7 +74,11 @@ fn main() {
 			http.Response{}
 		}
 
-		js_context_req := json.decode(models.ContextRequest, resp.body) or {
+		str := base64.decode_str(resp.body)
+
+		// println(str[0..5])
+
+		js_context_req := json.decode(models.ContextRequest, str) or {
 			time.sleep(time.millisecond * 1536)
 			continue
 		}
