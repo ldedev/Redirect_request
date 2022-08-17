@@ -176,7 +176,7 @@ fn (mut ws Ws) get_context_request(cnpj_cpf string) vweb.Result {
 	  "method": "GET",
 	  "id": "635e0ded-16a6-441e-8d98-6212e9b19345",
 	  "cnpj_cpf": "57635355000174",
-	  "concluded": false,
+	  "concluded": true,
 	  "waitingtime": "2022-08-17 18:00:19",
 	  "response": {
 	    "data_received": false,
