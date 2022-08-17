@@ -65,9 +65,9 @@ fn main() {
 	}
 
 	for {
-		if i == 2 {
-			panic("ok!")
-		}
+		// if i == 2 {
+		// 	panic("ok!")
+		// }
 		resp := http.get('http://$serv_redirect_ip:$serv_redirect_port/get_context_request/$cnpj_cpf') or {
 			http.Response{}
 		}

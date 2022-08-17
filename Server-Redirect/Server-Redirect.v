@@ -100,7 +100,7 @@ fn (mut ws Ws) redirect_me_access(cnpj_cpf string) vweb.Result {
 		time.sleep(time.millisecond * 700)
 	}
 
-	body := data_stack.stack[cnpj_cpf][id].response.body.clone()
+	body := data_stack.stack[cnpj_cpf][id].response.bodys
 
 	unsafe {
 		data_stack.stack[cnpj_cpf].delete(id)
@@ -170,10 +170,10 @@ fn (mut ws Ws) get_context_request(cnpj_cpf string) vweb.Result {
 
 	// str_js := json.encode(data_stack.stack[cnpj_cpf][id].body)
 
-	dump({
-		'url':  data_stack.stack[cnpj_cpf][id].url
-		'body': data_stack.stack[cnpj_cpf][id].body
-	})
+	// dump(data_stack.stack[cnpj_cpf][id])
+
+	println("MSG >>> ${data_stack.stack[cnpj_cpf][id].body} <<<")
+
 	return ws.json(data_stack.stack[cnpj_cpf][id])
 }
 
