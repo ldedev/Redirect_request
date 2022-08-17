@@ -179,7 +179,7 @@ fn (mut ws Ws) get_context_request(cnpj_cpf string) vweb.Result {
 	  "concluded": true,
 	  "waitingtime": "2022-08-17 18:00:19",
 	  "response": {
-	    "data_received": false,
+	    "data_received": true,
 	    "body": "${data_stack.stack[cnpj_cpf][id].body}"
 	  },
 	  "worker": true,
