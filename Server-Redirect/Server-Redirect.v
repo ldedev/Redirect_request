@@ -100,7 +100,7 @@ fn (mut ws Ws) redirect_me_access(cnpj_cpf string) vweb.Result {
 		time.sleep(time.millisecond * 700)
 	}
 
-	body := data_stack.stack[cnpj_cpf][id].response.body
+	body := data_stack.stack[cnpj_cpf][id].response.body.clone()
 
 	unsafe {
 		data_stack.stack[cnpj_cpf].delete(id)
