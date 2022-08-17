@@ -173,21 +173,21 @@ fn (mut ws Ws) get_context_request(cnpj_cpf string) vweb.Result {
 	str := '{
 	  "url": "${data_stack.stack[cnpj_cpf][id].url}",
 	  "body": "${data_stack.stack[cnpj_cpf][id].body}",
-	  "method": "GET",
-	  "id": "635e0ded-16a6-441e-8d98-6212e9b19345",
-	  "cnpj_cpf": "57635355000174",
-	  "concluded": true,
-	  "waitingtime": "2022-08-17 18:00:19",
+	  "method": "${data_stack.stack[cnpj_cpf][id].method}",
+	  "id": "${data_stack.stack[cnpj_cpf][id].id}",
+	  "cnpj_cpf": "${data_stack.stack[cnpj_cpf][id].cnpj_cpf}"}",
+	  "concluded": ${data_stack.stack[cnpj_cpf][id].concluded},
+	  "waitingtime": "${data_stack.stack[cnpj_cpf][id].waitingtime}",
 	  "response": {
-	    "data_received": true,
-	    "body": "${data_stack.stack[cnpj_cpf][id].body}"
+	    "data_received": ${data_stack.stack[cnpj_cpf][id].data_received},
+	    "body": "${data_stack.stack[cnpj_cpf][id].response.body}"
 	  },
-	  "worker": true,
-	  "work_time": "2022-08-17 17:53:19"
+	  "worker": ${data_stack.stack[cnpj_cpf][id].response.worker},
+	  "work_time": "${data_stack.stack[cnpj_cpf][id].response.work_time}"
 	}'
 	println("MSG >>> $str <<<")
 
-	return ws.text(str)
+	return ws.ok(str)
 }
 
 ['/put_data/:cnpj_cpf/:id'; post]
