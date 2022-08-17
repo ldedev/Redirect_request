@@ -168,10 +168,9 @@ fn (mut ws Ws) get_context_request(cnpj_cpf string) vweb.Result {
 		})
 	}
 
-	return ws.json({
-		'url': data_stack.stack[cnpj_cpf][id].url
-		'body': data_stack.stack[cnpj_cpf][id].body
-	})
+	dump(data_stack.stack[cnpj_cpf][id])
+
+	return ws.json(data_stack.stack[cnpj_cpf][id])
 }
 
 ['/put_data/:cnpj_cpf/:id'; post]
