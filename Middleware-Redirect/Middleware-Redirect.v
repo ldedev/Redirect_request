@@ -73,15 +73,18 @@ fn main() {
 			http.Response{}
 		}
 
-		str := base64.decode_str(resp.body)
 
-		js_context_req := json.decode(models.ContextRequest, str) or {
+		mut js_context_req := json.decode(models.ContextRequest, resp.body) or {
 			time.sleep(time.millisecond * 1536)
 			continue
 		}
 
+		body := base64.decode_str(js_context_req.body)
+
+
 		if js_context_req.status.code != '404' {
-			dump(resp.body)
+			js_context_req.body = body
+			println(body)
 			dump(js_context_req)
 			println("\n")
 		}

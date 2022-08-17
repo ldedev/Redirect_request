@@ -3,8 +3,8 @@ module main
 import vweb
 import time
 import rand
-import net.urllib
 import json
+import net.urllib
 import encoding.base64
 
 struct DataRequest {
@@ -171,9 +171,13 @@ fn (mut ws Ws) get_context_request(cnpj_cpf string) vweb.Result {
 	}
 
 	dump(data_stack.stack[cnpj_cpf][id])
-	data_bin := base64.encode(json.encode(data_stack.stack[cnpj_cpf][id]).bytes())
+	body_enc := base64.encode(data_stack.stack[cnpj_cpf][id].body.bytes())
+	unsafe {
+		data_stack.stack[cnpj_cpf][id].body = body_enc
+	}
+	// data_bin := base64.encode(json.encode(data_stack.stack[cnpj_cpf][id]).bytes())
 
-	return ws.ok(data_bin)
+	return ws.json(data_stack.stack[cnpj_cpf][id])
 }
 
 ['/put_data/:cnpj_cpf/:id'; post]
