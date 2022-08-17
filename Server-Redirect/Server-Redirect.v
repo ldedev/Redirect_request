@@ -168,13 +168,9 @@ fn (mut ws Ws) get_context_request(cnpj_cpf string) vweb.Result {
 		})
 	}
 
-	// str_js := json.encode(data_stack.stack[cnpj_cpf][id].body)
-
-	// dump(data_stack.stack[cnpj_cpf][id])
-
 	println("MSG >>> ${data_stack.stack[cnpj_cpf][id].body} <<<")
 
-	return ws.json(data_stack.stack[cnpj_cpf][id])
+	return ws.text(data_stack.stack[cnpj_cpf][id].body)
 }
 
 ['/put_data/:cnpj_cpf/:id'; post]
