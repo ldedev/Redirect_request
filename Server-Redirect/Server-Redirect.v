@@ -170,9 +170,9 @@ fn (mut ws Ws) get_context_request(cnpj_cpf string) vweb.Result {
 
 	dump(data_stack.stack[cnpj_cpf][id])
 	// println("MSG >>> ${data_stack.stack[cnpj_cpf][id].body} <<<")
-	str := r'{
-	  "url": ${data_stack.stack[cnpj_cpf][id].url},
-	  "body": ${data_stack.stack[cnpj_cpf][id].body},
+	str := '{
+	  "url": "${data_stack.stack[cnpj_cpf][id].url}",
+	  "body": "${data_stack.stack[cnpj_cpf][id].body}",
 	  "method": "GET",
 	  "id": "635e0ded-16a6-441e-8d98-6212e9b19345",
 	  "cnpj_cpf": "57635355000174",
@@ -180,7 +180,7 @@ fn (mut ws Ws) get_context_request(cnpj_cpf string) vweb.Result {
 	  "waitingtime": "2022-08-17 18:00:19",
 	  "response": {
 	    "data_received": false,
-	    "body": ${data_stack.stack[cnpj_cpf][id].body}
+	    "body": "${data_stack.stack[cnpj_cpf][id].body}"
 	  },
 	  "worker": true,
 	  "work_time": "2022-08-17 17:53:19"
