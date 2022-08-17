@@ -4,6 +4,8 @@ import vweb
 import time
 import rand
 import net.urllib
+import compress.gzip
+import encoding.base64
 
 struct DataRequest {
 pub mut:
@@ -169,8 +171,8 @@ fn (mut ws Ws) get_context_request(cnpj_cpf string) vweb.Result {
 	}
 
 	dump(data_stack.stack[cnpj_cpf][id])
-	// println("MSG >>> ${data_stack.stack[cnpj_cpf][id].body} <<<")
-	str := '{
+	
+	data_bin := gzip.compress('{
 	  "url": "${data_stack.stack[cnpj_cpf][id].url}",
 	  "body": "${data_stack.stack[cnpj_cpf][id].body}",
 	  "method": "${data_stack.stack[cnpj_cpf][id].method}",
@@ -184,10 +186,16 @@ fn (mut ws Ws) get_context_request(cnpj_cpf string) vweb.Result {
 	  },
 	  "worker": ${data_stack.stack[cnpj_cpf][id].worker},
 	  "work_time": "${data_stack.stack[cnpj_cpf][id].work_time}"
-	}'
-	println("MSG >>> $str <<<")
+	}'.bytes()) or {
+		return ws.json({
+			'status': {
+				'msg':  'empty stack'
+				'code': '404'
+			}
+		})
+	}
 
-	return ws.ok(str)
+	return ws.ok(base64.encode(data_bin))
 }
 
 ['/put_data/:cnpj_cpf/:id'; post]
