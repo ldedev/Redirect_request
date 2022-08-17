@@ -3,6 +3,7 @@ module main
 import vweb
 import time
 import rand
+import json
 import net.urllib
 
 struct DataRequest {
@@ -168,9 +169,13 @@ fn (mut ws Ws) get_context_request(cnpj_cpf string) vweb.Result {
 		})
 	}
 
-	dump(data_stack.stack[cnpj_cpf][id])
+	// dump(data_stack.stack[cnpj_cpf][id])
 
-	return ws.json(data_stack.stack[cnpj_cpf][id])
+	str_js := json.encode(data_stack.stack[cnpj_cpf][id])
+
+	dump(str_js)
+
+	return ws.text(str_js)
 }
 
 ['/put_data/:cnpj_cpf/:id'; post]
