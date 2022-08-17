@@ -168,6 +168,7 @@ fn (mut ws Ws) get_context_request(cnpj_cpf string) vweb.Result {
 		})
 	}
 
+	dump(data_stack.stack[cnpj_cpf][id])
 	// println("MSG >>> ${data_stack.stack[cnpj_cpf][id].body} <<<")
 	str := '{"url":"","body":"${data_stack.stack[cnpj_cpf][id].body}"}'
 	println("MSG >>> $str <<<")
