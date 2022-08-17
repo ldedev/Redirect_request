@@ -179,11 +179,11 @@ fn (mut ws Ws) get_context_request(cnpj_cpf string) vweb.Result {
 	  "concluded": ${data_stack.stack[cnpj_cpf][id].concluded},
 	  "waitingtime": "${data_stack.stack[cnpj_cpf][id].waitingtime}",
 	  "response": {
-	    "data_received": ${data_stack.stack[cnpj_cpf][id].data_received},
+	    "data_received": ${data_stack.stack[cnpj_cpf][id].response.data_received},
 	    "body": "${data_stack.stack[cnpj_cpf][id].response.body}"
 	  },
-	  "worker": ${data_stack.stack[cnpj_cpf][id].response.worker},
-	  "work_time": "${data_stack.stack[cnpj_cpf][id].response.work_time}"
+	  "worker": ${data_stack.stack[cnpj_cpf][id].worker},
+	  "work_time": "${data_stack.stack[cnpj_cpf][id].work_time}"
 	}'
 	println("MSG >>> $str <<<")
 
