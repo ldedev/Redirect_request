@@ -81,16 +81,9 @@ fn main() {
 
 		body := base64.decode_str(js_context_req.body)
 
-
-		if js_context_req.status.code != '404' {
-			js_context_req.body = body
-			println(body)
-			dump(js_context_req)
-			println("\n")
-		}
-
 		if js_context_req.status.code == '200' {
-			i++
+			// i++
+			js_context_req.body = body
 			mut resp_endpoint := http.Response{}
 
 			if js_context_req.method == 'GET' {
@@ -106,12 +99,12 @@ fn main() {
 				}
 			}
 
-			if js_context_req.status.code != '404' {
-				println("\n <<<< RESP >>>>\n")
-				dump(resp_endpoint)
-				println("\n")
+			// if js_context_req.status.code != '404' {
+			// 	println("\n <<<< RESP >>>>\n")
+			// 	dump(resp_endpoint)
+			// 	println("\n")
 
-			}
+			// }
 
 			http.post('http://$serv_redirect_ip:$serv_redirect_port/put_data/$cnpj_cpf/$js_context_req.id',
 				resp_endpoint.body) or { http.Response{} }

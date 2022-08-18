@@ -3,7 +3,6 @@ module main
 import vweb
 import time
 import rand
-import json
 import net.urllib
 import encoding.base64
 
@@ -78,7 +77,7 @@ fn (mut ws Ws) redirect_me_access(cnpj_cpf string) vweb.Result {
 			id: id
 			cnpj_cpf: cnpj_cpf
 			url: if url_param.starts_with('//') { url_param[1..] } else { url_param }
-			body: ws.req.data
+			body: base64.encode(ws.req.data.bytes())
 			method: ws.req.method.str()
 			concluded: false
 			waitingtime: time.now().add(10 * time.minute)
@@ -169,13 +168,10 @@ fn (mut ws Ws) get_context_request(cnpj_cpf string) vweb.Result {
 			}
 		})
 	}
-
-	dump(data_stack.stack[cnpj_cpf][id])
-	body_enc := base64.encode(data_stack.stack[cnpj_cpf][id].body.bytes())
+	
 	unsafe {
-		data_stack.stack[cnpj_cpf][id].body = body_enc
+		data_stack.stack[cnpj_cpf][id].body = base64.encode(data_stack.stack[cnpj_cpf][id].body.bytes())
 	}
-	// data_bin := base64.encode(json.encode(data_stack.stack[cnpj_cpf][id]).bytes())
 
 	return ws.json(data_stack.stack[cnpj_cpf][id])
 }
@@ -186,7 +182,7 @@ fn (mut ws Ws) put_data(cnpj_cpf string, id string) vweb.Result {
 		if id in data_stack.stack[cnpj_cpf] {
 			body := ws.req.data
 			unsafe {
-				data_stack.stack[cnpj_cpf][id].response.body = body
+				data_stack.stack[cnpj_cpf][id].response.body = base64.encode(body.bytes())
 				data_stack.stack[cnpj_cpf][id].response.data_received = true
 				data_stack.stack[cnpj_cpf][id].concluded = true
 			}
