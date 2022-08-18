@@ -173,8 +173,6 @@ fn (mut ws Ws) get_context_request(cnpj_cpf string) vweb.Result {
 		data_stack.stack[cnpj_cpf][id].body = base64.encode(data_stack.stack[cnpj_cpf][id].body.bytes())
 	}
 
-	dump(data_stack.stack[cnpj_cpf][id])
-
 	return ws.json(data_stack.stack[cnpj_cpf][id])
 }
 
@@ -184,7 +182,7 @@ fn (mut ws Ws) put_data(cnpj_cpf string, id string) vweb.Result {
 		if id in data_stack.stack[cnpj_cpf] {
 			body := ws.req.data
 			unsafe {
-				data_stack.stack[cnpj_cpf][id].response.body = base64.decode_str(body.bytes())
+				data_stack.stack[cnpj_cpf][id].response.body = base64.encode(body.bytes())
 				data_stack.stack[cnpj_cpf][id].response.data_received = true
 				data_stack.stack[cnpj_cpf][id].concluded = true
 			}
