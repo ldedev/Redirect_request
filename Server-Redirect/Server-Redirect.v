@@ -169,10 +169,6 @@ fn (mut ws Ws) get_context_request(cnpj_cpf string) vweb.Result {
 		})
 	}
 	
-	unsafe {
-		data_stack.stack[cnpj_cpf][id].body = base64.encode(data_stack.stack[cnpj_cpf][id].body.bytes())
-	}
-
 	return ws.json(data_stack.stack[cnpj_cpf][id])
 }
 

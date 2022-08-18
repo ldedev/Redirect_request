@@ -77,6 +77,11 @@ fn main() {
 
 		body := base64.decode_str(js_context_req.body)
 
+		if body.len > 0{
+			println(js_context_req.body)
+			println(body)
+		}
+
 		if js_context_req.status.code == '200' {
 			mut resp_endpoint := http.Response{}
 
