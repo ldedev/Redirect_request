@@ -182,7 +182,7 @@ fn (mut ws Ws) put_data(cnpj_cpf string, id string) vweb.Result {
 		if id in data_stack.stack[cnpj_cpf] {
 			body := ws.req.data
 			unsafe {
-				data_stack.stack[cnpj_cpf][id].response.body = base64.encode(body.bytes())
+				data_stack.stack[cnpj_cpf][id].response.body = base64.decode_str(body)
 				data_stack.stack[cnpj_cpf][id].response.data_received = true
 				data_stack.stack[cnpj_cpf][id].concluded = true
 			}

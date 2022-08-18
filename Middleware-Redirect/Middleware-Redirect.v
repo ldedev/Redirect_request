@@ -6,7 +6,6 @@ import domain.models
 import encoding.base64
 
 fn main() {
-	mut i := 0
 	println("Middleware started!")
 
 	access_ini := ini.read_ini('./access.ini') or { panic('access.ini not found') }
@@ -66,9 +65,6 @@ fn main() {
 	}
 
 	for {
-		// if i == 2 {
-		// 	panic("ok!")
-		// }
 		resp := http.get('http://$serv_redirect_ip:$serv_redirect_port/get_context_request/$cnpj_cpf') or {
 			http.Response{}
 		}
@@ -82,8 +78,6 @@ fn main() {
 		body := base64.decode_str(js_context_req.body)
 
 		if js_context_req.status.code == '200' {
-			// i++
-			js_context_req.body = body
 			mut resp_endpoint := http.Response{}
 
 			if js_context_req.method == 'GET' {
@@ -93,21 +87,14 @@ fn main() {
 				}
 			} else if js_context_req.method == 'POST' {
 				resp_endpoint = http.post('http://$endp_redirect_ip:$endp_redirect_port/$js_context_req.url',
-					js_context_req.body) or {
+					body) or {
 					time.sleep(time.millisecond * 1536)
 					continue
 				}
 			}
 
-			// if js_context_req.status.code != '404' {
-			// 	println("\n <<<< RESP >>>>\n")
-			// 	dump(resp_endpoint)
-			// 	println("\n")
-
-			// }
-
 			http.post('http://$serv_redirect_ip:$serv_redirect_port/put_data/$cnpj_cpf/$js_context_req.id',
-				resp_endpoint.body) or { http.Response{} }
+				base64.encode(resp_endpoint.body.bytes())) or { http.Response{} }
 		}
 
 		time.sleep(time.millisecond * 800)
