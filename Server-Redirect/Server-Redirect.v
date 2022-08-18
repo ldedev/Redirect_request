@@ -98,7 +98,7 @@ fn (mut ws Ws) redirect_me_access(cnpj_cpf string) vweb.Result {
 			break
 		}
 
-		time.sleep(time.millisecond * 700)
+		time.sleep(time.millisecond * 500)
 	}
 
 	body := data_stack.stack[cnpj_cpf][id].response.body
