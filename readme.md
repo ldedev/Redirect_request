@@ -28,8 +28,8 @@ Após tudo configurado, vamos baixar a linguagem e compilar.
 ```bash
 git clone https://github.com/vlang/v.git
 cd v
-make gcc
-v symlink
+make -gcc
+./v symlink
 v version
 ```
 
@@ -45,8 +45,8 @@ sudo apt install build-essential checkinstall zlib1g-dev -y
 sudo apt install git
 git clone https://github.com/vlang/v.git
 cd v
-make gcc
-v symlink
+make -gcc
+./v symlink
 v version
 ```
 
