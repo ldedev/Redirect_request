@@ -4,6 +4,7 @@ import vweb
 import time
 import rand
 import net.urllib
+import ldedev.ini
 import encoding.base64
 
 struct DataRequest {
@@ -39,9 +40,24 @@ struct Ws {
 }
 
 fn main() {
+
+	access_ini := ini.read_ini('./access.ini') or { panic('access.ini not found') }
+
+	port := match 'conf' in access_ini {
+		'port' in access_ini['conf'] {
+			access_ini['conf']['port'].int()
+		}
+		else {
+			panic('[conf]-> port not found in access.ini')
+			0
+		}
+	}
+
 	go job_status_request()
 
-	vweb.run(&Ws{}, 4060)
+	vweb.run_at(&Ws{}, 
+		vweb.RunParams{host:'0.0.0.0', port: port, family:.ip}
+	) ?
 }
 
 ['/:cnpj'; get; post]
@@ -98,7 +114,7 @@ fn (mut ws Ws) redirect_me_access(cnpj_cpf string) vweb.Result {
 			break
 		}
 
-		time.sleep(time.millisecond * 500)
+		time.sleep(time.millisecond * 450)
 	}
 
 	body := data_stack.stack[cnpj_cpf][id].response.body

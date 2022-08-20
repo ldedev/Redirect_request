@@ -68,13 +68,13 @@ fn main() {
 	println("Middleware started! ($serv_redirect_ip:$serv_redirect_port/$id_context?) <- ● -> ($endp_redirect_ip:$endp_redirect_port)")
 
 	for {
+		time.sleep(time.millisecond * 350)
+		
 		resp := http.get('http://$serv_redirect_ip:$serv_redirect_port/get_context_request/$id_context') or {
 			http.Response{}
 		}
 
-
 		mut js_context_req := json.decode(models.ContextRequest, resp.body) or {
-			time.sleep(time.millisecond * 1000)
 			continue
 		}
 
@@ -85,13 +85,11 @@ fn main() {
 
 			if js_context_req.method == 'GET' {
 				resp_endpoint = http.get('http://$endp_redirect_ip:$endp_redirect_port/$js_context_req.url') or {
-					time.sleep(time.millisecond * 1000)
 					continue
 				}
 			} else if js_context_req.method == 'POST' {
 				resp_endpoint = http.post('http://$endp_redirect_ip:$endp_redirect_port/$js_context_req.url',
 					body) or {
-					time.sleep(time.millisecond * 1000)
 					continue
 				}
 			}
@@ -102,7 +100,7 @@ fn main() {
 				base64.encode(resp_endpoint.body.bytes())) or { http.Response{} }
 		}
 
-		time.sleep(time.millisecond * 600)
+		time.sleep(time.millisecond * 350)
 	}
 }
 
