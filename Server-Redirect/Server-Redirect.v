@@ -3,6 +3,7 @@ module main
 import vweb
 import time
 import rand
+import term
 import net.urllib
 import ldedev.ini
 import encoding.base64
@@ -40,7 +41,6 @@ struct Ws {
 }
 
 fn main() {
-
 	access_ini := ini.read_ini('./access.ini') or { panic('access.ini not found') }
 
 	port := match 'conf' in access_ini {
@@ -54,10 +54,8 @@ fn main() {
 	}
 
 	go job_status_request()
-
-	vweb.run_at(&Ws{}, 
-		vweb.RunParams{host:'0.0.0.0', port: port, family:.ip}
-	) ?
+	term.clear()
+	vweb.run(&Ws{}, port)
 }
 
 ['/:cnpj'; get; post]
@@ -75,20 +73,19 @@ fn (mut ws Ws) redirect_me_access(cnpj_cpf string) vweb.Result {
 	}
 
 	id := rand.uuid_v4()
-	unsafe {
-		url_param = match true {
-			url_param.starts_with(':') {
-				url_param[1..] or { '' }
-			}
-			url_param.starts_with('/:') {
-				value := url_param[2..] or { '/' }
-				'$value'
-			}
-			else {
-				url_param
-			}
+	url_param = match true {
+		url_param.starts_with(':') {
+			url_param[1..] or { '' }
 		}
-
+		url_param.starts_with('/:') {
+			value := url_param[2..] or { '/' }
+			'$value'
+		}
+		else {
+			url_param
+		}
+	}
+	unsafe {
 		data_stack.stack[cnpj_cpf][id] = DataRequest{
 			id: id
 			cnpj_cpf: cnpj_cpf
@@ -114,18 +111,46 @@ fn (mut ws Ws) redirect_me_access(cnpj_cpf string) vweb.Result {
 			break
 		}
 
-		time.sleep(time.millisecond * 450)
+		time.sleep(time.millisecond * rand.int_in_range(50, 150) or { 100 })
 	}
 
-	body := data_stack.stack[cnpj_cpf][id].response.body
-
-	unsafe {
-		data_stack.stack[cnpj_cpf].delete(id)
+	defer {
+		unsafe {
+			data_stack.stack[cnpj_cpf].delete(id)
+		}
 	}
 
-	return ws.ok(body)
+	return ws.ok(data_stack.stack[cnpj_cpf][id].response.body)
 }
 
+['/put_data/:cnpj_cpf/:id'; post]
+fn (mut ws Ws) put_data(cnpj_cpf string, id string) vweb.Result {
+	if cnpj_cpf in data_stack.stack {
+		if id in data_stack.stack[cnpj_cpf] {
+			body := ws.req.data
+			unsafe {
+				data_stack.stack[cnpj_cpf][id].response.body = base64.decode_str(body)
+				data_stack.stack[cnpj_cpf][id].response.data_received = true
+				data_stack.stack[cnpj_cpf][id].concluded = true
+			}
+			return ws.json({
+				'status': {
+					'msg':  'ok'
+					'code': '200'
+				}
+			})
+		}
+	}
+
+	return ws.json({
+		'status': {
+			'msg':  'ok'
+			'code': '200'
+		}
+	})
+}
+
+// temporário!
 fn (mut ws Ws) list_stack() vweb.Result {
 	return ws.json(data_stack.stack)
 }
@@ -184,35 +209,8 @@ fn (mut ws Ws) get_context_request(cnpj_cpf string) vweb.Result {
 			}
 		})
 	}
-	
+
 	return ws.json(data_stack.stack[cnpj_cpf][id])
-}
-
-['/put_data/:cnpj_cpf/:id'; post]
-fn (mut ws Ws) put_data(cnpj_cpf string, id string) vweb.Result {
-	if cnpj_cpf in data_stack.stack {
-		if id in data_stack.stack[cnpj_cpf] {
-			body := ws.req.data
-			unsafe {
-				data_stack.stack[cnpj_cpf][id].response.body = base64.decode_str(body)
-				data_stack.stack[cnpj_cpf][id].response.data_received = true
-				data_stack.stack[cnpj_cpf][id].concluded = true
-			}
-			return ws.json({
-				'status': {
-					'msg':  'ok'
-					'code': '200'
-				}
-			})
-		}
-	}
-
-	return ws.json({
-		'status': {
-			'msg':  'ok'
-			'code': '200'
-		}
-	})
 }
 
 fn job_status_request() {

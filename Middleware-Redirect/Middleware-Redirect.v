@@ -2,12 +2,12 @@ import time
 import net.http
 import ldedev.ini
 import json
+import rand
 import domain.models
 import encoding.base64
 import term
 
 fn main() {
-
 	access_ini := ini.read_ini('./access.ini') or { panic('access.ini not found') }
 
 	id_context := match true {
@@ -65,11 +65,11 @@ fn main() {
 	}
 
 	term.clear()
-	println("Middleware started! ($serv_redirect_ip:$serv_redirect_port/$id_context?) <- ● -> ($endp_redirect_ip:$endp_redirect_port)")
+	println('Middleware started! ($serv_redirect_ip:$serv_redirect_port/$id_context?) <- ● -> ($endp_redirect_ip:$endp_redirect_port)')
 
 	for {
-		time.sleep(time.millisecond * 350)
-		
+		time.sleep(time.millisecond * rand.int_in_range(150, 500) or { 325 })
+
 		resp := http.get('http://$serv_redirect_ip:$serv_redirect_port/get_context_request/$id_context') or {
 			http.Response{}
 		}
@@ -78,31 +78,24 @@ fn main() {
 			continue
 		}
 
-		body := base64.decode_str(js_context_req.body)
-
 		if js_context_req.status.code == '200' {
-			mut resp_endpoint := http.Response{}
-
-			if js_context_req.method == 'GET' {
-				resp_endpoint = http.get('http://$endp_redirect_ip:$endp_redirect_port/$js_context_req.url') or {
-					continue
-				}
-			} else if js_context_req.method == 'POST' {
-				resp_endpoint = http.post('http://$endp_redirect_ip:$endp_redirect_port/$js_context_req.url',
-					body) or {
-					continue
-				}
-			}
-
-			// dump(resp_endpoint)
-
-			http.post('http://$serv_redirect_ip:$serv_redirect_port/put_data/$id_context/$js_context_req.id',
-				base64.encode(resp_endpoint.body.bytes())) or { http.Response{} }
+			go resolve_context_of_request(js_context_req, id_context, serv_redirect_ip,
+				serv_redirect_port, endp_redirect_ip, endp_redirect_port)
 		}
-
-		time.sleep(time.millisecond * 350)
 	}
 }
 
-fn find_result_from_request(requeried string, url_param string, body string) {
+fn resolve_context_of_request(js_context_req models.ContextRequest, id_context string, serv_redirect_ip string, serv_redirect_port string, endp_redirect_ip string, endp_redirect_port string) ? {
+	body := base64.decode_str(js_context_req.body)
+	mut resp_endpoint := http.Response{}
+
+	if js_context_req.method == 'GET' {
+		resp_endpoint = http.get('http://$endp_redirect_ip:$endp_redirect_port/$js_context_req.url')?
+	} else if js_context_req.method == 'POST' {
+		resp_endpoint = http.post('http://$endp_redirect_ip:$endp_redirect_port/$js_context_req.url',
+			body)?
+	}
+
+	http.post('http://$serv_redirect_ip:$serv_redirect_port/put_data/$id_context/$js_context_req.id',
+		base64.encode(resp_endpoint.body.bytes()))?
 }
