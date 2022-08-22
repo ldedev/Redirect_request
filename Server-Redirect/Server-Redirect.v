@@ -14,7 +14,7 @@ pub mut:
 	body        string
 	method      string = 'GET'
 	id          string
-	cnpj_cpf    string
+	id_context  string
 	concluded   bool
 	waitingtime time.Time
 	response    DataResponse
@@ -58,19 +58,9 @@ fn main() {
 	vweb.run(&Ws{}, port)
 }
 
-['/:cnpj'; get; post]
-fn (mut ws Ws) redirect_me_access(cnpj_cpf string) vweb.Result {
+['/:id_context'; get; post]
+fn (mut ws Ws) redirect_me_access(id_context string) vweb.Result {
 	mut url_param := urllib.query_unescape(ws.req.url.after('?')) or { ws.req.url.after('?') }
-
-	if cnpj_cpf.len == 14 || cnpj_cpf.len == 11 {
-	} else if !cnpj_cpf.split('').all(it[0].is_digit()) {
-		return ws.json({
-			'status': {
-				'msg':  'invalid cnpj/cpf'
-				'code': '401'
-			}
-		})
-	}
 
 	id := rand.uuid_v4()
 	url_param = match true {
@@ -86,9 +76,9 @@ fn (mut ws Ws) redirect_me_access(cnpj_cpf string) vweb.Result {
 		}
 	}
 	unsafe {
-		data_stack.stack[cnpj_cpf][id] = DataRequest{
+		data_stack.stack[id_context][id] = DataRequest{
 			id: id
-			cnpj_cpf: cnpj_cpf
+			id_context: id_context
 			url: if url_param.starts_with('//') { url_param[1..] } else { url_param }
 			body: base64.encode(ws.req.data.bytes())
 			method: ws.req.method.str()
@@ -97,7 +87,7 @@ fn (mut ws Ws) redirect_me_access(cnpj_cpf string) vweb.Result {
 		}
 	}
 	for {
-		if id !in data_stack.stack[cnpj_cpf] {
+		if id !in data_stack.stack[id_context] {
 			return ws.json({
 				'status': {
 					'msg':  'timeout'
@@ -106,8 +96,8 @@ fn (mut ws Ws) redirect_me_access(cnpj_cpf string) vweb.Result {
 			})
 		}
 
-		if data_stack.stack[cnpj_cpf][id].concluded
-			&& data_stack.stack[cnpj_cpf][id].response.data_received {
+		if data_stack.stack[id_context][id].concluded
+			&& data_stack.stack[id_context][id].response.data_received {
 			break
 		}
 
@@ -116,22 +106,22 @@ fn (mut ws Ws) redirect_me_access(cnpj_cpf string) vweb.Result {
 
 	defer {
 		unsafe {
-			data_stack.stack[cnpj_cpf].delete(id)
+			data_stack.stack[id_context].delete(id)
 		}
 	}
 
-	return ws.ok(data_stack.stack[cnpj_cpf][id].response.body)
+	return ws.ok(data_stack.stack[id_context][id].response.body)
 }
 
-['/put_data/:cnpj_cpf/:id'; post]
-fn (mut ws Ws) put_data(cnpj_cpf string, id string) vweb.Result {
-	if cnpj_cpf in data_stack.stack {
-		if id in data_stack.stack[cnpj_cpf] {
+['/put_data/:id_context/:id'; post]
+fn (mut ws Ws) put_data(id_context string, id string) vweb.Result {
+	if id_context in data_stack.stack {
+		if id in data_stack.stack[id_context] {
 			body := ws.req.data
 			unsafe {
-				data_stack.stack[cnpj_cpf][id].response.body = base64.decode_str(body)
-				data_stack.stack[cnpj_cpf][id].response.data_received = true
-				data_stack.stack[cnpj_cpf][id].concluded = true
+				data_stack.stack[id_context][id].response.body = base64.decode_str(body)
+				data_stack.stack[id_context][id].response.data_received = true
+				data_stack.stack[id_context][id].concluded = true
 			}
 			return ws.json({
 				'status': {
@@ -155,9 +145,9 @@ fn (mut ws Ws) list_stack() vweb.Result {
 	return ws.json(data_stack.stack)
 }
 
-['/get_context_request/:cnpj_cpf']
-fn (mut ws Ws) get_context_request(cnpj_cpf string) vweb.Result {
-	if cnpj_cpf !in data_stack.stack {
+['/get_context_request/:id_context']
+fn (mut ws Ws) get_context_request(id_context string) vweb.Result {
+	if id_context !in data_stack.stack {
 		return ws.json({
 			'status': {
 				'msg':  'empty stack'
@@ -166,7 +156,7 @@ fn (mut ws Ws) get_context_request(cnpj_cpf string) vweb.Result {
 		})
 	}
 
-	if data_stack.stack[cnpj_cpf].len == 0 {
+	if data_stack.stack[id_context].len == 0 {
 		return ws.json({
 			'status': {
 				'msg':  'empty stack'
@@ -177,12 +167,12 @@ fn (mut ws Ws) get_context_request(cnpj_cpf string) vweb.Result {
 
 	mut id := ''
 
-	for i in data_stack.stack[cnpj_cpf].keys() {
-		if !data_stack.stack[cnpj_cpf][i].worker {
+	for i in data_stack.stack[id_context].keys() {
+		if !data_stack.stack[id_context][i].worker {
 			id = i
 			break
-		} else if data_stack.stack[cnpj_cpf][i].worker
-			&& time.now() >= data_stack.stack[cnpj_cpf][i].work_time {
+		} else if data_stack.stack[id_context][i].worker
+			&& time.now() >= data_stack.stack[id_context][i].work_time {
 			id = i
 			break
 		}
@@ -198,8 +188,8 @@ fn (mut ws Ws) get_context_request(cnpj_cpf string) vweb.Result {
 	}
 
 	unsafe {
-		data_stack.stack[cnpj_cpf][id].worker = true
-		data_stack.stack[cnpj_cpf][id].work_time = time.now().add(time.minute * 3)
+		data_stack.stack[id_context][id].worker = true
+		data_stack.stack[id_context][id].work_time = time.now().add(time.minute * 3)
 	}
 	if id == '' {
 		return ws.json({
@@ -210,25 +200,25 @@ fn (mut ws Ws) get_context_request(cnpj_cpf string) vweb.Result {
 		})
 	}
 
-	return ws.json(data_stack.stack[cnpj_cpf][id])
+	return ws.json(data_stack.stack[id_context][id])
 }
 
 fn job_status_request() {
 	for {
-		for key_cnpj_cpf, _ in data_stack.stack {
-			for key, _ in data_stack.stack[key_cnpj_cpf] {
+		for key_id_context, _ in data_stack.stack {
+			for key, _ in data_stack.stack[key_id_context] {
 				time_now := time.now()
-				if time_now > data_stack.stack[key_cnpj_cpf][key].waitingtime {
+				if time_now > data_stack.stack[key_id_context][key].waitingtime {
 					unsafe {
-						data_stack.stack[key_cnpj_cpf][key].waitingtime = time.now().add(3 * time.minute)
-						data_stack.stack[key_cnpj_cpf][key].concluded = true
+						data_stack.stack[key_id_context][key].waitingtime = time.now().add(3 * time.minute)
+						data_stack.stack[key_id_context][key].concluded = true
 					}
 				}
 
-				if data_stack.stack[key_cnpj_cpf][key].concluded
-					&& time_now > data_stack.stack[key_cnpj_cpf][key].waitingtime {
+				if data_stack.stack[key_id_context][key].concluded
+					&& time_now > data_stack.stack[key_id_context][key].waitingtime {
 					unsafe {
-						data_stack.stack[key_cnpj_cpf].delete(key)
+						data_stack.stack[key_id_context].delete(key)
 					}
 				}
 			}
